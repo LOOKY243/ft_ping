@@ -80,7 +80,7 @@ void resolve_hostname(const char *hostname, struct sockaddr_in *dest_addr)
     hints.ai_socktype = SOCK_DGRAM;
     if (getaddrinfo(hostname, NULL, &hints, &result) != 0)
     {
-        fprintf(stderr, "ping: %s: Name or service not known\n", hostname);
+        fprintf(stderr, "ft_ping: %s: Name or service not known\n", hostname);
         exit(EXIT_FAILURE);
     }
     dest_addr->sin_addr = ((struct sockaddr_in *)result->ai_addr)->sin_addr;

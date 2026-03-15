@@ -4,27 +4,34 @@ t_global_info info;
 
 int main(int argc, char **argv)
 {
-    if (argc != 2)
+    if (argc < 2)
     {
-        fprintf(stderr, "Usage: %s <hostname>\n", argv[0]);
+        fprintf(stderr, "ft_ping: missing host operand\nTry 'ft_ping --help' or 'ft_ping --usage' for more information.\n");
         return 1;
     }
+    t_flags flags;
     struct sockaddr_in dest_addr;
-    info.sockfd = create_socket();
 
+    if (parse_args(argc, argv, &flags))
+        return 1;
+    info.sockfd = create_socket();
     memset(&dest_addr, 0, sizeof(dest_addr));
     dest_addr.sin_family = AF_INET;
-    resolve_hostname(argv[1], &dest_addr);
-    int seq = 1;
-    info.ip = argv[1];
     signal(SIGINT, c_signal_handler);
-    printf("PING %s (%s): 56 data bytes\n", argv[1], inet_ntoa(dest_addr.sin_addr));
-    info.total_time = get_current_time();
-    while (1)
+    for (int i = 0; info.hosts && info.hosts[i]; i++)
     {
-        send_icmp_echo(info.sockfd, &dest_addr, seq);
-        seq++;
+        resolve_hostname(info.hosts[i], &dest_addr);
+        printf("PING %s (%s): 56 data bytes\n", info.hosts[i], inet_ntoa(dest_addr.sin_addr));
+        initiate_info();
+        info.ip = info.hosts[i];
+        info.total_time = get_current_time();
+        while (flags.count == 0 || info.sent_packets < flags.count)
+        {
+            send_icmp_echo(info.sockfd, &dest_addr, info.sent_packets + 1);
+        }
+        print_stats();
     }
     close(info.sockfd);
+    cleanup();
     return 0;
 }

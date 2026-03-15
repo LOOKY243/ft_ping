@@ -1,13 +1,49 @@
 #include "ft_ping.h"
 
+void initiate_info(void)
+{
+    info.sent_packets = 0;
+    info.received_packets = 0;
+    info.shortest_rtt = 0;
+    info.longest_rtt = 0;
+    info.average_rtt = 0;
+}
+
+void cleanup(void)
+{
+    free(info.rtts);
+    for (int i = 0; info.hosts && info.hosts[i]; i++)
+    {
+        free(info.hosts[i]);
+    }
+    free(info.hosts);
+}
+
+int isnumeric(const char *str)
+{
+    int i;
+
+    if (str[0] == '-' || str[0] == '+')
+        i = 1;
+    else
+        i = 0;
+    while(str[i])
+    {
+        if (str[i] < '0' || str[i] > '9')
+            return 0;
+        i++;
+    }
+    return 1;
+}
+
 double calculate_stddev(void)
 {
-    double sum = 0.0;
-    double mean = info.average_rtt / info.received_packets;
+    double sum = 0;
+    double avg = info.average_rtt / info.received_packets;
 
     for (int i = 0; i < info.received_packets; i++)
     {
-        sum += pow(info.rtts[i] - mean, 2);
+        sum += pow(info.rtts[i] - avg, 2);
     }
     return sqrt(sum / info.received_packets);
 }
@@ -39,13 +75,37 @@ double *add_rtts_array(int size, double new_rtt)
     return new_array;
 }
 
+char **add_hosts_array(char **hosts, char *new_host, int size)
+{
+    char **new_array = malloc((size + 1) * sizeof(char *));
+    if (!new_array)
+    {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < size - 1; i++)
+    {
+        new_array[i] = strdup(hosts[i]);
+    }
+    new_array[size - 1] = strdup(new_host);
+    new_array[size] = NULL;
+    if (size > 1)
+    {
+        for (int i = 0; i < size - 1; i++)
+        {
+            free(hosts[i]);
+        }
+        free(hosts);
+    }
+    return new_array;
+}
 void c_signal_handler(int signal)
 {
     if (signal == SIGINT)
     {
         print_stats();
         close(info.sockfd);
-        free(info.rtts);
+        cleanup();
         exit(EXIT_SUCCESS);
     }
 }

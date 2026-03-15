@@ -1,6 +1,6 @@
 CC = cc
 NAME = ft_ping
-SRCS = main.c icmp.c utils.c
+SRCS = main.c icmp.c utils.c parse.c
 HEADER = ft_ping.h
 OBJS = $(SRCS:.c=.o)
 CFLAGS = -Werror -Wextra -Wall -g
@@ -8,7 +8,7 @@ CFLAGS = -Werror -Wextra -Wall -g
 all:$(NAME)
 
 $(NAME): $(OBJS)
-	@$(CC) $(OBJS) -o $(NAME) -lm
+	@$(CC) $(OBJS) -o $(NAME) -lm -g
 	@printf "\033[1;32mCompilation Finished!\n\033[0m"
 
 %.o : %.c $(HEADER)

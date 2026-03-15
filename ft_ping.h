@@ -15,8 +15,16 @@
 #include <math.h>
 
 
+
+typedef struct s_flags
+{
+    int count;
+    int verbose;
+} t_flags;
+
 typedef struct s_global_info
 {
+    char **hosts;
     char *ip;
     double *rtts;
     int sent_packets;
@@ -32,6 +40,12 @@ typedef struct s_global_info
 extern t_global_info info;
 
 int create_socket();
+void cleanup(void);
+int isnumeric(const char *str);
+char **add_hosts_array(char **hosts, char *new_host, int ips);
+void initiate_info(void);
+void print_stats(void);
+int parse_args(int argc, char **argv, t_flags *flags);
 double *add_rtts_array(int size, double new_rtt);
 uint16_t checksum(void *data, size_t len);
 void send_icmp_echo(int sockfd, struct sockaddr_in *dest_addr, uint16_t seq);
