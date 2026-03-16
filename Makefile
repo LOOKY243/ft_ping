@@ -1,6 +1,6 @@
 CC = cc
 NAME = ft_ping
-SRCS = main.c icmp.c utils.c parse.c
+SRCS = main.c icmp.c utils.c args.c
 HEADER = ft_ping.h
 OBJS = $(SRCS:.c=.o)
 CFLAGS = -Werror -Wextra -Wall -g
